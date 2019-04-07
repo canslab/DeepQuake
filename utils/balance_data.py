@@ -75,17 +75,10 @@ for i in range(17):
     train_set += class_data[split:]
 
 # Write output
-train = pd.DataFrame.from_records(train_set, columns=["signal","time"])
-val = pd.DataFrame.from_records(val_set,  columns=["signal","time"])
-train.to_csv('train.csv')
-val.to_csv('val.csv')
-
-
-"""
 train_X = [x[0] for x in train_set]
-train_Y = [x[0] for x in train_set]
-val_X = [x[0] for x in train_set]
-val_Y = [x[0] for x in train_set]
+train_Y = [x[1] for x in train_set]
+val_X = [x[0] for x in val_set]
+val_Y = [x[1] for x in val_set]
 
 for i in tqdm(range(len(train_set))):
     seg_id += 1
@@ -93,4 +86,10 @@ for i in tqdm(range(len(train_set))):
         writer = csv.writer(outfile, delimiter=',', quotechar='"')
         X = train_set[i][0]
         writer.writerow(X)
+
+"""
+train = pd.DataFrame.from_records(train_set, columns=["signal","time"])
+val = pd.DataFrame.from_records(val_set,  columns=["signal","time"])
+train.to_csv('train.csv')
+val.to_csv('val.csv')
 """
