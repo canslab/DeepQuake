@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 start = time.time()
 
 # Read training data entirely
-data = pd.read_csv("../data/train.csv",  nrows=10**8, dtype={"acoustic_data": np.float32, "time_to_failure": np.float32})
+data = pd.read_csv("../data/train.csv", dtype={"acoustic_data": np.float32, "time_to_failure": np.float32})
 data.rename({"acoustic_data": "signal", "time_to_failure": "time"}, axis="columns", inplace=True)
 print("Loaded training data")
 print("Executed in", round(time.time()-start), "seconds")
@@ -74,15 +74,16 @@ for i in range(17):
     val_set += class_data[0:split]
     train_set += class_data[split:]
 
+random.shuffle(train_set)
+random.shuffle(val_set)
+
 # Format data and write output
-tX = []
-tY = []
+tX, tY = [], []
 for sample in train_set:
     tX.append(sample[0])
     tY.append(sample[1])
 
-vX = []
-vY = []
+vX, vY = [], []
 for sample in val_set:
     vX.append(sample[0])
     vY.append(sample[1])
@@ -97,7 +98,7 @@ print(vX.shape)
 
 dtx = {"signal": tX}
 dty = {"time": tY}
-dvx = {"signal": tX}
+dvx = {"signal": vX}
 dvy = {"time": vY}
 
 train_samples = pd.DataFrame(data=dtx)
@@ -105,7 +106,10 @@ train_labels = pd.DataFrame(data=dty)
 val_samples = pd.DataFrame(data=dvx)
 val_labels = pd.DataFrame(data=dvy)
 
-train_samples.to_csv("train_samples.csv")
-train_labels.to_csv("train_labels.csv")
-val_samples.to_csv("val_samples.csv")
-val_samples.to_csv("val_labels.csv")
+print("Writing new training data")
+train_samples.to_csv("train_samples.csv", index_col = False)
+train_labels.to_csv("train_labels.csv". index_col = False)
+
+print("Writing new validation data")
+val_samples.to_csv("val_samples.csv", index_col = False)
+val_samples.to_csv("val_labels.csv", index_col = False)
