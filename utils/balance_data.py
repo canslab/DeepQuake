@@ -74,22 +74,38 @@ for i in range(17):
     val_set += class_data[0:split]
     train_set += class_data[split:]
 
-# Write output
-train_X = [x[0] for x in train_set]
-train_Y = [x[1] for x in train_set]
-val_X = [x[0] for x in val_set]
-val_Y = [x[1] for x in val_set]
+# Format data and write output
+tX = []
+tY = []
+for sample in train_set:
+    tX.append(sample[0])
+    tY.append(sample[1])
 
-for i in tqdm(range(len(train_set))):
-    seg_id += 1
-    with open("segment" + str(seg_id) + "X.csv", "w") as outfile:
-        writer = csv.writer(outfile, delimiter=',', quotechar='"')
-        X = train_set[i][0]
-        writer.writerow(X)
+vX = []
+vY = []
+for sample in val_set:
+    vX.append(sample[0])
+    vY.append(sample[1])
 
-"""
-train = pd.DataFrame.from_records(train_set, columns=["signal","time"])
-val = pd.DataFrame.from_records(val_set,  columns=["signal","time"])
-train.to_csv('train.csv')
-val.to_csv('val.csv')
-"""
+tX = np.array(tX).flatten().astype(int)
+tY = np.array(tY).flatten()
+vX = np.array(vX).flatten().astype(int)
+vY = np.array(vY).flatten()
+
+print(tX.shape)
+print(vX.shape)
+
+dtx = {"signal": tX}
+dty = {"time": tY}
+dvx = {"signal": tX}
+dvy = {"time": vY}
+
+train_samples = pd.DataFrame(data=dtx)
+train_labels = pd.DataFrame(data=dty)
+val_samples = pd.DataFrame(data=dvx)
+val_labels = pd.DataFrame(data=dvy)
+
+train_samples.to_csv("train_samples.csv")
+train_labels.to_csv("train_labels.csv")
+val_samples.to_csv("val_samples.csv")
+val_samples.to_csv("val_labels.csv")
