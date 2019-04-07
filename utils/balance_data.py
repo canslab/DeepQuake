@@ -124,4 +124,4 @@ train_labels.to_csv("train_labels.csv", index = False)
 
 print("Writing new validation data")
 val_samples.to_csv("val_samples.csv", index = False)
-val_samples.to_csv("val_labels.csv", index = False)
+val_labels.to_csv("val_labels.csv", index = False)
