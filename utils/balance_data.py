@@ -107,9 +107,9 @@ val_samples = pd.DataFrame(data=dvx)
 val_labels = pd.DataFrame(data=dvy)
 
 print("Writing new training data")
-train_samples.to_csv("train_samples.csv", index_col = False)
-train_labels.to_csv("train_labels.csv", index_col = False)
+train_samples.to_csv("train_samples.csv", index = False)
+train_labels.to_csv("train_labels.csv", index = False)
 
 print("Writing new validation data")
-val_samples.to_csv("val_samples.csv", index_col = False)
-val_samples.to_csv("val_labels.csv", index_col = False)
+val_samples.to_csv("val_samples.csv", index = False)
+val_samples.to_csv("val_labels.csv", index = False)
