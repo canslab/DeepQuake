@@ -1,12 +1,24 @@
+"""
+Subsamples the 1d input signal and groups each segment into buckets
+based on the time_to_failure. Chooses a representative amount of samples
+from each bucket, slightly reducing number of over populated ones to make
+a more balanced data set_random_seed
+
+Outputs:
+
+train_samples.csv --> continuous signal with each 150000 length segment being a separate sample
+train_labels.csv --> labels for each train sample in order
+val_samples.csv --> continuous signal with each 150000 length segment being a separate sample
+val_labels.csv --> labels for each validation sample in order
+"""
+
 import numpy as np
 import pandas as pd
 import random
 import math
 import time
 import os
-import csv
 from tqdm import tqdm
-from collections import Counter
 import matplotlib.pyplot as plt
 
 start = time.time()
