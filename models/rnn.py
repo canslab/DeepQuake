@@ -18,7 +18,7 @@ from tensorflow import set_random_seed
 set_random_seed(5944)
 
 # Import
-float_data = pd.read_csv("./train.csv", dtype={"acoustic_data": np.float32, "time_to_failure": np.float32}).values
+float_data = pd.read_csv("../data/train.csv", dtype={"acoustic_data": np.float32, "time_to_failure": np.float32}).values
 print("Loaded training data")
 
 # Helper function for the data generator. Extracts mean, standard deviation, and quantiles per time step.
@@ -103,37 +103,19 @@ model.compile(optimizer=adam(lr=0.0005), loss="mae")
 
 history = model.fit_generator(train_gen,
                               steps_per_epoch=1000,
-                              epochs=2,
-                              verbose=0,
+                              epochs=30,
+                              verbose=2,
                               callbacks=cb,
                               validation_data=valid_gen,
                               validation_steps=200)
 
-# Visualize accuracies
-import matplotlib.pyplot as plt
-
-def perf_plot(history, what = 'loss'):
-    x = history.history[what]
-    val_x = history.history['val_' + what]
-    epochs = np.asarray(history.epoch) + 1
-
-    plt.plot(epochs, x, 'bo', label = "Training " + what)
-    plt.plot(epochs, val_x, 'b', label = "Validation " + what)
-    plt.title("Training and validation " + what)
-    plt.xlabel("Epochs")
-    plt.legend()
-    plt.show()
-    return None
-
-perf_plot(history)
-
 # Load submission file
-submission = pd.read_csv('../input/sample_submission.csv', index_col='seg_id', dtype={"time_to_failure": np.float32})
+submission = pd.read_csv('../data/sample_submission.csv', index_col='seg_id', dtype={"time_to_failure": np.float32})
 
 # Load each test data, create the feature matrix, get numeric prediction
 for i, seg_id in enumerate(tqdm(submission.index)):
   #  print(i)
-    seg = pd.read_csv('../input/test/' + seg_id + '.csv')
+    seg = pd.read_csv('../data/test/' + seg_id + '.csv')
     x = seg['acoustic_data'].values
     submission.time_to_failure[i] = model.predict(np.expand_dims(create_X(x), 0))
 
