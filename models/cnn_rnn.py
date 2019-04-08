@@ -8,7 +8,7 @@ import random
 import math
 from tqdm import tqdm
 from keras.models import Sequential
-from keras.layers import Dense, LSTM, Conv1D, Bidirectional, TimeDistributed
+from keras.layers import Dense, LSTM, Conv1D
 from keras.optimizers import adam
 from keras.callbacks import ModelCheckpoint
 
@@ -55,14 +55,13 @@ model.add(Conv1D(30, 100, strides=100, activation='relu', input_shape=(seg_lengt
 model.add(Conv1D(60, 15, strides=15, activation='relu'))
 
 # Feed representation into bidirectional LSTM
-model.add(Bidirectional(LSTM(50, return_sequences=True)))
-model.add(TimeDistributed(Dense(10, activation='relu')))
-model.add(Flatten())
+model.add(LSTM(50))
+model.add(Dense(10, activation='relu'))
 model.add(Dense(1))
 
 # Compile and fit model
 model.summary()
-model.compile(optimizer=adam(lr=0.001), loss="mae")
+model.compile(optimizer=adam(lr=0.0005), loss="mae")
 history = model.fit(X_train, Y_train,
                     validation_data=(X_val, Y_val),
                     epochs=30,
@@ -76,7 +75,7 @@ submission = pd.read_csv('../data/sample_submission.csv', index_col='seg_id', dt
 for i, seg_id in enumerate(tqdm(submission.index)):
     seg = pd.read_csv('../data/test/' + seg_id + '.csv')
     x = seg['acoustic_data'].values
-    submission.time_to_failure[i] = model.predict(x, 0))
+    submission.time_to_failure[i] = model.predict(x)
 
 # Save
-submission.to_csv('bi_lstm50.csv')
+submission.to_csv('cnn_rnn.csv')
