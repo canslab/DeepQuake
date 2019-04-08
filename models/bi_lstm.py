@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 import os
 import time
+import random
+import math
 from tqdm import tqdm
 from keras.models import Sequential
 from keras.layers import Dense, LSTM, Conv1D, Bidirectional
@@ -24,11 +26,15 @@ print("Executed in", round(time.time()-start), "seconds")
 # Separate to discrete samples
 seg_length = 150000
 num_samples = int(len(train)/len(Y_train))
+print(num_samples)
 X_train = []
 for i in range(num_samples):
     X = train[i*seg_length:(i+1)*seg_length]
     X = (X-5) / 3 # Normalizing
     X_train.append(X)
+
+print(len(X_train[0]))
+print(len(X_train))
 
 num_samples = int(len(val)/len(Y_val))
 X_val = []
