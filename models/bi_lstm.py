@@ -26,14 +26,14 @@ print("Executed in", round(time.time()-start), "seconds")
 seg_length = 150000
 num_samples = int(len(train)/len(Y_train))
 X_train = []
-for i in range(num_samples)
+for i in range(num_samples):
     X = train[i*seg_length:(i+1)*seg_length]
     X = (X-5) / 3 # Normalizing
     X_train.append(X)
 
 num_samples = int(len(val)/len(Y_val))
 X_val = []
-for i in range(num_samples)
+for i in range(num_samples):
     X = val[i*seg_length:(i+1)*seg_length]
     X = (X-5) / 3 # Normalizing
     X_val.append(X)
@@ -45,10 +45,10 @@ model = Sequential()
 
 # Encoder CNN
 model.add(Conv1D(30, 100, strides=100, activation='relu', input_shape=(seg_length, 1)))
-model.add(Conv1D(60, 15, strides=15, activation='relu')
+model.add(Conv1D(60, 15, strides=15, activation='relu'))
 
 # Feed representation into bidirectional LSTM
-model.add(Bidirectional(LSTM(50, return_sequences=True))
+model.add(Bidirectional(LSTM(50, return_sequences=True)))
 model.add(Dense(10, activation='relu'))
 model.add(Dense(1))
 
