@@ -34,6 +34,7 @@ for i in range(num_samples):
 
 print(len(X_train[0]))
 print(len(X_train))
+X_train = np.array(X_train).reshape((-1, seg_length, 1))
 
 num_samples = len(Y_val)
 X_val = []
@@ -41,6 +42,8 @@ for i in range(num_samples):
     X = val[i*seg_length:(i+1)*seg_length]
     X = (X-5) / 3 # Normalizing
     X_val.append(X)
+
+X_val = np.array(X_val).reshape((-1, seg_length, 1))
 
 # Save model periodically
 cb = [ModelCheckpoint("bi_lstm.hdf5", save_best_only=True, period=3)]
