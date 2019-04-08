@@ -6,10 +6,9 @@ import os
 import time
 from tqdm import tqdm
 from keras.models import Sequential
-from keras.layers import Dense, GRU, LSTM
+from keras.layers import Dense, LSTM, Conv1D, Bidirectional
 from keras.optimizers import adam
 from keras.callbacks import ModelCheckpoint
-from keras.layers import Bidirectional
 
 start = time.time()
 
