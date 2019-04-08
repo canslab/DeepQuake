@@ -25,8 +25,7 @@ print("Executed in", round(time.time()-start), "seconds")
 
 # Separate to discrete samples
 seg_length = 150000
-num_samples = int(len(train)/len(Y_train))
-print(num_samples)
+num_samples = len(Y_train)
 X_train = []
 for i in range(num_samples):
     X = train[i*seg_length:(i+1)*seg_length]
@@ -36,7 +35,7 @@ for i in range(num_samples):
 print(len(X_train[0]))
 print(len(X_train))
 
-num_samples = int(len(val)/len(Y_val))
+num_samples = len(Y_val)
 X_val = []
 for i in range(num_samples):
     X = val[i*seg_length:(i+1)*seg_length]
