@@ -1,81 +1,96 @@
-# Author Mehmet Emre Sonmez
-# @mes2311
+# CNN-RNN Approach
+
 import numpy as np
 import pandas as pd
 import os
 import time
-import random
-import math
 from tqdm import tqdm
 from keras.models import Sequential
-from keras.layers import Dense, LSTM, Conv1D
+from keras.layers import Dense, Conv1D, MaxPooling1D, GlobalMaxPooling1D, Dropout, GRU
 from keras.optimizers import adam
 from keras.callbacks import ModelCheckpoint
+from sklearn.model_selection import train_test_split
 
+# Fix seeds
+from numpy.random import seed
+seed(537)
+from tensorflow import set_random_seed
+set_random_seed(6214)
+
+
+# Import
+print("Loading data...")
 start = time.time()
-
-# Import data
-train = pd.read_csv("../data/balanced/train_samples.csv", dtype={"signal": np.float32}).values
-Y_train = pd.read_csv("../data/balanced/train_labels.csv", dtype={"time": np.float32}).values
-val = pd.read_csv("../data/balanced/val_samples.csv", dtype={"signal": np.float32}).values
-Y_val = pd.read_csv("../data/balanced/val_labels.csv", dtype={"time": np.float32}).values
-
+data = pd.read_csv("../data/train.csv", dtype={"acoustic_data": np.float32, "time_to_failure": np.float32})
 print("Loaded training data")
 print("Executed in", round(time.time()-start), "seconds")
 
-# Separate to discrete samples
+X_train = data['acoustic_data']
+y_train = data['time_to_failure']
+
+# Free up memory
+del data
+
+# Cut training data
 seg_length = 150000
-num_samples = len(Y_train)
-X_train = []
-for i in range(num_samples):
-    X = train[i*seg_length:(i+1)*seg_length]
-    X = (X-5) / 3 # Normalizing
-    X_train.append(X)
+X_train = X_train[:int(np.floor(X_train.shape[0] / seg_length))*seg_length]
+X_train= X_train.values.reshape((-1, seg_length, 1))
+print(X_train.shape)
 
-print(len(X_train[0]))
-print(len(X_train))
-X_train = np.array(X_train).reshape((-1, seg_length, 1))
+y_train = y_train[:int(np.floor(y_train.shape[0] / seg_length))*seg_length]
+y_train = y_train[seg_length-1::seg_length].values
+print(y_train.shape)
 
-num_samples = len(Y_val)
-X_val = []
-for i in range(num_samples):
-    X = val[i*seg_length:(i+1)*seg_length]
-    X = (X-5) / 3 # Normalizing
-    X_val.append(X)
+# Training/ Vaidation Split
+X_train, X_val, y_train, y_val = train_test_split(X_train,
+                                                y_train,
+                                                test_size= 0.1,
+                                                random_state= 11)
 
-X_val = np.array(X_val).reshape((-1, seg_length, 1))
+# Define model
+cb = [ModelCheckpoint("deep_cnn.hdf5", save_best_only=True, period=3)]
 
-# Save model periodically
-cb = [ModelCheckpoint("bi_lstm.hdf5", save_best_only=True, period=3)]
-
+# CNN Encoder
 model = Sequential()
+model.add(Conv1D(4, 10, strides=10, activation='relu', input_shape=(seg_length, 1))) #150,000 x 1 --> 15,000 x 4
+model.add(Conv1D(8, 10, strides=10, activation='relu')) # 15,000 x 4 --> 1500 x 8
+model.add(Dropout(0.2))
+model.add(Conv1D(30, 10, strides=2, activation='relu')) # 1500 x 8 --> 750 x 30
+model.add(MaxPooling1D(2)) # 750 x 30 --> 375 x 30
+model.add(Conv1D(60, 5, strides=3, activation='relu')) # 375 x 30 --> 125 x 60
+model.add(Dropout(0.1))
 
-# Encoder CNN
-model.add(Conv1D(30, 100, strides=100, activation='relu', input_shape=(seg_length, 1)))
-model.add(Conv1D(60, 15, strides=15, activation='relu'))
-
-# Feed representation into bidirectional LSTM
-model.add(LSTM(50))
+#  GRU predictor
+model.add(GRU(48))
 model.add(Dense(10, activation='relu'))
 model.add(Dense(1))
 
-# Compile and fit model
 model.summary()
+
+# Compile and fit model
 model.compile(optimizer=adam(lr=0.0005), loss="mae")
-history = model.fit(X_train, Y_train,
-                    validation_data=(X_val, Y_val),
-                    epochs=30,
-                    verbose=2,
-                    callbacks=cb)
+
+model.fit(X_train,
+        y_train,
+        batch_size= 32,
+        epochs= 30,
+        validation_data= (X_val, y_val),
+        callbacks=cb,
+        verbose= 2
+        )
 
 # Load submission file
 submission = pd.read_csv('../data/sample_submission.csv', index_col='seg_id', dtype={"time_to_failure": np.float32})
 
 # Load each test data, create the feature matrix, get numeric prediction
 for i, seg_id in enumerate(tqdm(submission.index)):
+  #  print(i)
     seg = pd.read_csv('../data/test/' + seg_id + '.csv')
     x = seg['acoustic_data'].values
+    x = x.reshape((-1, seg_length, 1))
     submission.time_to_failure[i] = model.predict(x)
 
+submission.head()
+
 # Save
-submission.to_csv('cnn_rnn.csv')
+submission.to_csv('deep_cnn.csv')
