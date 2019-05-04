@@ -76,7 +76,7 @@ submission = pd.read_csv('../data/sample_submission.csv', index_col='seg_id', dt
 for i, seg_id in enumerate(tqdm(submission.index)):
     seg = pd.read_csv('../data/test/' + seg_id + '.csv')
     x = seg['acoustic_data'].values
-    submission.time_to_failure[i] = model.predict(x, 0))
+    submission.time_to_failure[i] = model.predict(x, 0)
 
 # Save
 submission.to_csv('bi_lstm50.csv')
